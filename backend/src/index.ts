@@ -3,28 +3,36 @@ import cors from 'cors';
 import express from 'express';
 import * as Sentry from '@sentry/node';
 
-import { SearchQuery, Car } from './types.ts';
-import { scrapeCarGurus } from './scraper.ts';
-import { scrapeAutoTempest } from './autoTempest.ts';
+import { scrapeCarGurus } from './scraper.js'; 
+import { scrapeAutoTempest } from './autoTempest.js'; 
+import { SearchQuery, Car } from './types.js';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 
 // Sentry init
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  tracesSampleRate: 1.0,
-  sendDefaultPii: true,
-});
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    tracesSampleRate: 1.0,
+    environment: process.env.NODE_ENV || 'development',
+  });
+  console.log('Sentry initialized');
+} else {
+  console.log('Sentry disabled - no DSN provided');
+}
 
-app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 // app.use(Sentry.Handlers.requestHandler());
+
+// Health check
+app.get('/health', (req, res) => {
+  console.log('Health check hit');
+  res.json({ status: 'ok' });
+});
 
 // Search endpoint
 app.post('/search', async (req, res) => {
@@ -32,7 +40,7 @@ app.post('/search', async (req, res) => {
     const { scenario, maxPrice, zipCode }: SearchQuery = req.body;
     
     const price = maxPrice || extractPrice(scenario) || 30000;
-    const zip = zipCode || extractZip(scenario) || '10001';
+    const zip = zipCode || extractZip(scenario) || '94102';
     
     console.log(`Searching both sources: $${price} near ${zip}`);
     
@@ -60,9 +68,34 @@ app.post('/search', async (req, res) => {
 
 Sentry.setupExpressErrorHandler(app);
 
-app.listen(PORT, () => {
-  console.log(`🚗 Server running on port ${PORT}`);
+// app.listen(PORT, () => {
+//   console.log(`🚗 Server running on port ${PORT}`);
+// });
+
+const startServer = async () => {
+  try {
+    app.listen(PORT, () => {
+      console.log(`🚗 Server running on http://localhost:${PORT}`);
+      console.log('Health check: http://localhost:8000/health');
+      console.log('Ready to accept requests!');
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+// Handle unhandled rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+startServer();
 
 // Helper functions
 function extractPrice(scenario: string): number | null {
@@ -71,8 +104,8 @@ function extractPrice(scenario: string): number | null {
 }
 
 function extractZip(scenario: string): string | null {
-  const match = scenario.match(/\b(\d{5})\b/);
-  return match ? match[1] : null;
+  // const match = scenario.match(/\b(\d{5})\b/);
+  return '94102';
 }
 
 function rankCars(cars: Car[], maxPrice: number): Car[] {

@@ -13,7 +13,7 @@ services:
     directory: ./frontend
     
   - name: backend
-    port: 5000
+    port: 8000
     command: npm run dev
     directory: ./backend
     environment:
