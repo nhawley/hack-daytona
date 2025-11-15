@@ -1,0 +1,27 @@
+{
+  "name": "hack-daytona",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nhawley/hack-daytona.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/nhawley/hack-daytona/issues"
+  },
+  "homepage": "https://github.com/nhawley/hack-daytona#readme",
+  "dependencies": {
+    "@daytonaio/sdk": "^0.115.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1"
+  }
+}

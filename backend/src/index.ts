@@ -1,5 +1,6 @@
-import express from 'express';
-import cors from 'cors';
+const express = require('express');
+const cors = require('cors');
+
 import * as Sentry from '@sentry/node';
 
 import { SearchQuery, Car } from './types.js';
