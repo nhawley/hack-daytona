@@ -1,0 +1,31 @@
+# .daytona/config.yaml
+version: "1.0"
+name: auto-broker
+description: Automated car broker system
+
+workspace:
+  image: node:20-bullium
+  
+services:
+  - name: frontend
+    port: 3000
+    command: npm run dev
+    directory: ./frontend
+    
+  - name: backend
+    port: 5000
+    command: npm run dev
+    directory: ./backend
+    environment:
+      - NODE_ENV=development
+      - SENTRY_DSN=${SENTRY_DSN}
+      
+vscode_extensions:
+  - dbaeumer.vscode-eslint
+  - esbenp.prettier-vscode
+  - bradlc.vscode-tailwindcss
+  - ms-playwright.playwright
+
+dependencies:
+  - playwright
+  - chromium
